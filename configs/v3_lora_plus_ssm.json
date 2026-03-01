@@ -1,0 +1,101 @@
+{
+  "version": "V3",
+  "label": "lora_plus_ssm",
+  "description": "Hybrid-aware LoRA targeting Mamba projections + attention, with SSM core parameters (A_log, D, dt_bias) unfrozen during training. SSM monkey-patch enables proper gradient flow through Mamba-2 SSD layers. Major breakthrough in all tasks. However, PEFT's save_model() triggers inference_mode which discards SSM gradients — trained SSM values NOT persisted in saved checkpoint.",
+  "base_model": {
+    "name": "ibm-granite/granite-4.0-h-micro",
+    "architecture": "Hybrid Mamba-2/Transformer",
+    "parameters": "3.2B",
+    "layers": {
+      "total": 40,
+      "mamba2": 36,
+      "attention": 4
+    }
+  },
+  "lora_config": {
+    "peft_type": "LORA",
+    "peft_version": "0.18.1",
+    "r": 16,
+    "alpha": 32,
+    "dropout": 0.05,
+    "bias": "none",
+    "task_type": "CAUSAL_LM",
+    "target_modules": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj",
+      "in_proj",
+      "out_proj",
+      "input_linear",
+      "output_linear"
+    ],
+    "target_module_types": {
+      "attention_projections": ["q_proj", "k_proj", "v_proj", "o_proj"],
+      "mamba_projections": ["in_proj", "out_proj"],
+      "mamba_ssm_projections": ["input_linear", "output_linear"]
+    },
+    "note": "Hybrid-aware targets covering both attention (4 layers) and Mamba-2 (36 layers) projections. Requires SSM monkey-patch for gradient flow."
+  },
+  "ssm_config": {
+    "ssm_core_unfreezing": true,
+    "ssm_core_params": ["A_log", "D", "dt_bias"],
+    "ssm_params_per_layer": {
+      "A_log": [64],
+      "D": [64],
+      "dt_bias": [64]
+    },
+    "total_ssm_params": 6912,
+    "ssm_layers": 36,
+    "ssm_monkey_patch": true,
+    "ssm_persistence": false,
+    "ssm_persistence_note": "PEFT bug: trainer.save_model() calls inference_mode on LoRA layers, which freezes all parameters. SSM core params saved via ssm_core_params.pt contain base model values, not trained values."
+  },
+  "training_config": {
+    "num_epochs": 3,
+    "batch_size": 32,
+    "gradient_accumulation_steps": 1,
+    "learning_rate": 2e-4,
+    "weight_decay": 0.01,
+    "warmup_ratio": 0.06,
+    "max_seq_length": 1280,
+    "precision": "bfloat16",
+    "quantization": "none",
+    "training_method": "LoRA + SSM core unfreezing (Mamba-2 SSD)"
+  },
+  "tasks": {
+    "document_classification": {
+      "training_examples": 21932,
+      "eval_examples": 2437,
+      "eval_loss": 0.588
+    },
+    "schema_mapping": {
+      "training_examples": 13699,
+      "eval_examples": 1523,
+      "eval_loss": 0.196
+    },
+    "structured_code_generation": {
+      "training_examples": 8248,
+      "eval_examples": 917,
+      "eval_loss": 0.230
+    }
+  },
+  "evaluation_results": {
+    "document_classification": {
+      "exact_match": 52.2,
+      "contains_match": 53.8
+    },
+    "schema_mapping": {
+      "json_valid_pct": 99.9,
+      "mapping_accuracy": 97.65,
+      "unmapped_accuracy": 97.55
+    },
+    "structured_code_generation": {
+      "json_valid_pct": 98.91,
+      "has_all_fields_pct": 98.8,
+      "severity_correct": 41.33,
+      "type_correct": 3.16
+    }
+  },
+  "key_finding": "Despite SSM values not persisting to checkpoint, V3 gains +11.4 points classification over V2 (52.2 vs 40.8). This reveals a co-training effect: unfreezing SSM params during training improves LoRA weight optimization even when SSM values revert to base at inference."
+}

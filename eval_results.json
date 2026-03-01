@@ -1,0 +1,118 @@
+{
+  "Base_no_training": {
+    "classification": {
+      "exact_match": 0.0,
+      "contains_match": 0.1,
+      "total_examples": 1000,
+      "errors": 0,
+      "elapsed_seconds": 982.4,
+      "examples_per_second": 1.02
+    },
+    "mapping": {
+      "json_valid_pct": 1.9,
+      "mapping_accuracy": 0.48,
+      "unmapped_accuracy": 1.2,
+      "total_examples": 1000,
+      "errors": 0,
+      "elapsed_seconds": 3824.9,
+      "examples_per_second": 0.26
+    },
+    "rule_generation": {
+      "json_valid_pct": 29.99,
+      "has_all_fields_pct": 0.0,
+      "severity_correct": 3.27,
+      "violation_type_correct": 0.0,
+      "total_examples": 917,
+      "errors": 0,
+      "elapsed_seconds": 7800.3,
+      "examples_per_second": 0.12
+    }
+  },
+  "V1_wrong_targets": {
+    "classification": {
+      "exact_match": 0.1,
+      "contains_match": 0.1,
+      "total_examples": 1000,
+      "errors": 0,
+      "elapsed_seconds": 513.3,
+      "examples_per_second": 1.95
+    },
+    "mapping": {
+      "json_valid_pct": 0.4,
+      "mapping_accuracy": 0.0,
+      "unmapped_accuracy": 0.3,
+      "total_examples": 1000,
+      "errors": 0,
+      "elapsed_seconds": 2569.0,
+      "examples_per_second": 0.39
+    },
+    "rule_generation": {
+      "json_valid_pct": 67.94,
+      "has_all_fields_pct": 0.0,
+      "severity_correct": 0.11,
+      "violation_type_correct": 0.0,
+      "total_examples": 917,
+      "errors": 0,
+      "elapsed_seconds": 4324.5,
+      "examples_per_second": 0.21
+    }
+  },
+  "V2_correct_lora": {
+    "classification": {
+      "exact_match": 40.8,
+      "contains_match": 45.9,
+      "total_examples": 1000,
+      "errors": 0,
+      "elapsed_seconds": 244.5,
+      "examples_per_second": 4.09
+    },
+    "mapping": {
+      "json_valid_pct": 99.9,
+      "mapping_accuracy": 96.03,
+      "unmapped_accuracy": 96.64,
+      "total_examples": 1000,
+      "errors": 0,
+      "elapsed_seconds": 2571.7,
+      "examples_per_second": 0.39
+    },
+    "rule_generation": {
+      "json_valid_pct": 98.58,
+      "has_all_fields_pct": 98.15,
+      "severity_correct": 39.91,
+      "violation_type_correct": 2.73,
+      "total_examples": 917,
+      "errors": 0,
+      "elapsed_seconds": 2213.2,
+      "examples_per_second": 0.41
+    }
+  },
+  "V3_lora_plus_ssm": {
+    "classification": {
+      "exact_match": 52.2,
+      "contains_match": 53.8,
+      "total_examples": 1000,
+      "errors": 0,
+      "elapsed_seconds": 235.8,
+      "examples_per_second": 4.24
+    },
+    "mapping": {
+      "json_valid_pct": 99.9,
+      "mapping_accuracy": 97.65,
+      "unmapped_accuracy": 97.55,
+      "total_examples": 1000,
+      "errors": 0,
+      "elapsed_seconds": 2550.4,
+      "examples_per_second": 0.39
+    },
+    "rule_generation": {
+      "json_valid_pct": 98.91,
+      "has_all_fields_pct": 98.8,
+      "severity_correct": 41.33,
+      "violation_type_correct": 3.16,
+      "total_examples": 917,
+      "errors": 0,
+      "elapsed_seconds": 2272.5,
+      "examples_per_second": 0.4
+    }
+  }
+}

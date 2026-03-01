@@ -1,0 +1,89 @@
+{
+  "version": "V1",
+  "label": "wrong_targets",
+  "description": "Standard LoRA approach using naive transformer target modules. gate_proj, up_proj, and down_proj do not exist in Granite 4.0-H-Micro's architecture — PEFT silently skips them. Only q/k/v/o_proj on the 4 attention layers actually receive LoRA adapters, leaving all 36 Mamba-2 layers completely unadapted. Near-zero task performance demonstrates that standard LoRA target selection fails on hybrid architectures.",
+  "base_model": {
+    "name": "ibm-granite/granite-4.0-h-micro",
+    "architecture": "Hybrid Mamba-2/Transformer",
+    "parameters": "3.2B",
+    "layers": {
+      "total": 40,
+      "mamba2": 36,
+      "attention": 4
+    }
+  },
+  "lora_config": {
+    "peft_type": "LORA",
+    "peft_version": "0.18.1",
+    "r": 16,
+    "alpha": 32,
+    "dropout": 0.05,
+    "bias": "none",
+    "task_type": "CAUSAL_LM",
+    "target_modules": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj",
+      "gate_proj",
+      "up_proj",
+      "down_proj"
+    ],
+    "target_module_types": {
+      "attention_projections": ["q_proj", "k_proj", "v_proj", "o_proj"],
+      "mlp_projections_MISSING": ["gate_proj", "up_proj", "down_proj"]
+    },
+    "note": "Standard transformer LoRA targets. gate_proj/up_proj/down_proj do NOT exist in Granite Hybrid — PEFT silently skips them without warning. Only 4 attention layers (q/k/v/o_proj) actually receive adapters. 36 Mamba-2 layers are completely untouched."
+  },
+  "ssm_config": {
+    "ssm_core_unfreezing": false,
+    "ssm_persistence": false,
+    "ssm_monkey_patch": false
+  },
+  "training_config": {
+    "num_epochs": 3,
+    "batch_size": 32,
+    "gradient_accumulation_steps": 1,
+    "learning_rate": 2e-4,
+    "weight_decay": 0.01,
+    "warmup_ratio": 0.06,
+    "max_seq_length": 1280,
+    "precision": "bfloat16",
+    "quantization": "none"
+  },
+  "tasks": {
+    "document_classification": {
+      "training_examples": 21932,
+      "eval_examples": 2437,
+      "eval_loss": 1.085
+    },
+    "schema_mapping": {
+      "training_examples": 13699,
+      "eval_examples": 1523,
+      "eval_loss": 0.456
+    },
+    "structured_code_generation": {
+      "training_examples": 8248,
+      "eval_examples": 917,
+      "eval_loss": 0.633
+    }
+  },
+  "evaluation_results": {
+    "document_classification": {
+      "exact_match": 0.1,
+      "contains_match": 0.1
+    },
+    "schema_mapping": {
+      "json_valid_pct": 0.4,
+      "mapping_accuracy": 0.0,
+      "unmapped_accuracy": 0.3
+    },
+    "structured_code_generation": {
+      "json_valid_pct": 67.94,
+      "has_all_fields_pct": 0.0,
+      "severity_correct": 0.11,
+      "type_correct": 0.0
+    }
+  },
+  "key_finding": "Demonstrates PEFT's silent module-skipping failure mode on hybrid architectures. Standard transformer target names (gate_proj, up_proj, down_proj) do not exist in Granite Hybrid's Mamba-2 layers. PEFT skips them without warning, leaving 36/40 layers unadapted."
+}

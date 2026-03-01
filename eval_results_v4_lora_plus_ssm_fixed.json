@@ -1,0 +1,31 @@
+{
+  "V4_lora_plus_ssm_fixed": {
+    "classification": {
+      "exact_match": 55.8,
+      "contains_match": 58.4,
+      "total_examples": 1000,
+      "errors": 0,
+      "elapsed_seconds": 239.8,
+      "examples_per_second": 4.17
+    },
+    "mapping": {
+      "json_valid_pct": 99.5,
+      "mapping_accuracy": 96.73,
+      "unmapped_accuracy": 97.28,
+      "total_examples": 1000,
+      "errors": 0,
+      "elapsed_seconds": 2509.6,
+      "examples_per_second": 0.4
+    },
+    "rule_generation": {
+      "json_valid_pct": 98.8,
+      "has_all_fields_pct": 97.49,
+      "severity_correct": 40.57,
+      "violation_type_correct": 3.05,
+      "total_examples": 917,
+      "errors": 0,
+      "elapsed_seconds": 2268.0,
+      "examples_per_second": 0.4
+    }
+  }
+}

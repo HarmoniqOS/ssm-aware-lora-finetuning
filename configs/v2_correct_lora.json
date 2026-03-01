@@ -1,0 +1,91 @@
+{
+  "version": "V2",
+  "label": "correct_lora",
+  "description": "Updated LoRA targets to match Granite 4.0-H-Micro's actual architecture. Replaces non-existent MLP names with Mamba-2 projection layers (in_proj, out_proj, input_linear, output_linear). All 40 layers now receive LoRA adapters — 4 attention + 36 Mamba. Massive improvement over V1.",
+  "base_model": {
+    "name": "ibm-granite/granite-4.0-h-micro",
+    "architecture": "Hybrid Mamba-2/Transformer",
+    "parameters": "3.2B",
+    "layers": {
+      "total": 40,
+      "mamba2": 36,
+      "attention": 4
+    }
+  },
+  "lora_config": {
+    "peft_type": "LORA",
+    "peft_version": "0.18.1",
+    "r": 16,
+    "alpha": 32,
+    "dropout": 0.05,
+    "bias": "none",
+    "task_type": "CAUSAL_LM",
+    "target_modules": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj",
+      "in_proj",
+      "out_proj",
+      "input_linear",
+      "output_linear"
+    ],
+    "target_module_types": {
+      "attention_projections": ["q_proj", "k_proj", "v_proj", "o_proj"],
+      "mamba_projections": ["in_proj", "out_proj"],
+      "mamba_ssm_projections": ["input_linear", "output_linear"]
+    },
+    "note": "Hybrid-aware targets. in_proj/out_proj are Mamba-2 input/output projections. input_linear/output_linear are the SSM scan projections. All 40 layers now receive LoRA adaptation."
+  },
+  "ssm_config": {
+    "ssm_core_unfreezing": false,
+    "ssm_persistence": false,
+    "ssm_monkey_patch": true
+  },
+  "training_config": {
+    "num_epochs": 3,
+    "batch_size": 32,
+    "gradient_accumulation_steps": 1,
+    "learning_rate": 2e-4,
+    "weight_decay": 0.01,
+    "warmup_ratio": 0.06,
+    "max_seq_length": 1280,
+    "precision": "bfloat16",
+    "quantization": "none"
+  },
+  "tasks": {
+    "document_classification": {
+      "training_examples": 21932,
+      "eval_examples": 2437,
+      "eval_loss": 0.634
+    },
+    "schema_mapping": {
+      "training_examples": 13699,
+      "eval_examples": 1523,
+      "eval_loss": 0.212
+    },
+    "structured_code_generation": {
+      "training_examples": 8248,
+      "eval_examples": 917,
+      "eval_loss": 0.253
+    }
+  },
+  "evaluation_results": {
+    "document_classification": {
+      "exact_match": 40.8,
+      "contains_match": 45.9
+    },
+    "schema_mapping": {
+      "json_valid_pct": 99.9,
+      "mapping_accuracy": 96.03,
+      "unmapped_accuracy": 96.64
+    },
+    "structured_code_generation": {
+      "json_valid_pct": 98.58,
+      "has_all_fields_pct": 98.15,
+      "severity_correct": 39.91,
+      "type_correct": 2.73
+    }
+  },
+  "key_finding": "Correct target module selection is the single largest factor. V1→V2 (fixing targets) yields +40.7 classification, +98.18 mapping JSON validity, +30.64 code gen field completeness. Adapting Mamba-2 projection layers via LoRA is effective even without touching SSM core parameters."
+}
